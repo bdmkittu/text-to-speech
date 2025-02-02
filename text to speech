@@ -1,0 +1,58 @@
+# Import necessary packages
+from gtts import gTTS
+import os
+from tkinter import *
+from tkinter import messagebox
+import gtts.langs
+
+# Function for text-to-speech conversion
+def text_to_speech():
+    text = text_entry.get("1.0", "end-1c").strip()
+    language = accent_entry.get().strip()
+
+    # Check if the user provided input
+    if not text or not language:
+        messagebox.showerror("Error", "Enter required details")
+        return
+
+    try:
+        # Convert text to speech
+        speech = gTTS(text=text, lang=language, slow=False)
+        speech.save("text.mp3")
+
+        # Play the MP3 file
+        if os.name == "nt":  # Windows
+            os.system("start text.mp3")
+        elif os.name == "posix":  # Linux & macOS
+            os.system("mpg123 text.mp3" if "linux" in os.uname().sysname.lower() else "afplay text.mp3")
+
+    except ValueError:
+        messagebox.showerror("Error", "Invalid language code! Click 'List Languages' to see valid codes.")
+
+# Function to list available languages
+def list_languages():
+    languages = gtts.langs.tts_langs()  # Correct function to get supported languages
+    lang_list = "\n".join([f"{code}: {name}" for code, name in languages.items()])
+    messagebox.showinfo("Available Languages", lang_list)
+
+# Create main application window
+window = Tk()
+window.geometry("500x300")
+window.title("Text-to-Speech Converter")
+
+# Labels and text fields
+Label(window, text="Text-to-Speech Conversion", font=("Arial", 12, "bold")).pack(pady=5)
+Label(window, text="Enter Text:").place(x=10, y=40)
+text_entry = Text(window, width=40, height=5)
+text_entry.place(x=100, y=40)
+
+Label(window, text="Language Code:").place(x=10, y=140)
+accent_entry = Entry(window, width=30)
+accent_entry.place(x=100, y=140)
+
+# Buttons
+Button(window, text='List Languages', bg='Turquoise', fg='Red', command=list_languages).place(x=10, y=200)
+Button(window, text='Convert Text to Speech', bg='Turquoise', fg='Red', command=text_to_speech).place(x=130, y=200)
+
+# Start the application
+window.mainloop()
